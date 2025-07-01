@@ -3,7 +3,6 @@ import sublime_plugin
 
 class _Super_ExtendedListHandler(sublime_plugin.ListInputHandler):
     acceptedInput = None
-    latestInput = ""
 
     def accept_input(self, view: sublime.View) -> bool: return True
 
@@ -13,9 +12,8 @@ class _Super_ExtendedListHandler(sublime_plugin.ListInputHandler):
         super().__init__(*args, **kwargs)
 
     def _on_modified(self, view: sublime.View):
-        latestInput = view.substr(view.full_line(0))
         if self.accept_input(view):
-            self.acceptedInput = latestInput
+            self.acceptedInput = view.substr(view.full_line(0))
             sublime.active_window().run_command("hide_overlay")
 
     def _cleanup(self):
