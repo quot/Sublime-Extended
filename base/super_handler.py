@@ -2,17 +2,22 @@ import sublime
 import sublime_plugin
 
 class _Super_ExtendedListHandler(sublime_plugin.ListInputHandler):
+    sourceCommand = None
     acceptedInput = None
 
     def accept_input(self, view: sublime.View) -> bool: return True
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, command = None, *args, **kwargs):
+        if (isinstance(command, sublime_plugin.Command)):
+            self.sourceCommand = command
+        else:
+            self.sourceCommand = None
         self.acceptedInput = None
         _manager_set_active_handler(self)
         super().__init__(*args, **kwargs)
 
     def _on_modified(self, view: sublime.View):
-        if self.accept_input(view):
+        if self.accept_input(view) and self.validate(view.substr(view.full_line(0))):
             self.acceptedInput = view.substr(view.full_line(0))
             sublime.active_window().run_command("hide_overlay")
 
@@ -32,6 +37,12 @@ class _Super_ExtendedListHandler(sublime_plugin.ListInputHandler):
             self.confirm(v, event)
         else:
             self.confirm(v)
+        if (self.acceptedInput != None
+                and isinstance(self.sourceCommand, sublime_plugin.TextCommand)
+                or isinstance(self.sourceCommand, sublime_plugin.ApplicationCommand)
+                or isinstance(self.sourceCommand, sublime_plugin.WindowCommand)):
+            view = sublime.active_window().active_view()
+            if (view != None): view.run_command(self.sourceCommand.name(), {self.name(): v})
 
 ############################
 ### Input Handler Manager

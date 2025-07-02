@@ -26,8 +26,16 @@ class ExtendedListHandler(_Super_ExtendedListHandler):
     def accept_input(self, view: sublime.View) -> bool:
         """
         Called when the handler is active and text input is modified.
+        Completes the input handler when ``True`` is returned. When completed
+        this way, the user's text input will be passed to `confirm`.
 
-        Completes the input handler when ``True`` is returned. When completed,
-        the user's text input will be passed to `confirm`.
+        Handler must be initialized with the calling command passed
+        in for the text to be returned.
+
+        ```python
+        class ExampleCommand(sublime_plugin.TextCommand):
+            def input(self, args):
+                return ExtendedListHandler(self)
+        ```
         """
         return True
